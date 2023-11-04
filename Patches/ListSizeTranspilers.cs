@@ -27,6 +27,44 @@ namespace BigLobby.Patches
             }
             return codes.AsEnumerable();
         }
+        [HarmonyPatch(typeof(CrawlerAI), "Start")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> CrawlerAIPatch(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Newarr)
+                {
+                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
+        [HarmonyPatch(typeof(DressGirlAI), "ChoosePlayerToHaunt")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> DressPatch(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Newarr)
+                {
+                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
         /*[HarmonyPatch(typeof(StartOfRound), "SyncShipUnlockablesServerRpc")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> SyncUnlockablesRpc(IEnumerable<CodeInstruction> instructions) {
@@ -63,34 +101,15 @@ namespace BigLobby.Patches
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
-                if (codes[i].opcode == OpCodes.Blt_S)
-                {
-                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
+                //if (codes[i].opcode == OpCodes.Blt_S)
+                //{
+                    if (codes[i].opcode == OpCodes.Ldc_I4_4)
                     {
-                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
-                        codes[i - 1].operand = Plugin.MaxPlayers;
+                        codes[i].opcode = OpCodes.Ldc_I4_S;
+                        codes[i].operand = Plugin.MaxPlayers;
                         break;
                     }
-                }
-            }
-            return codes.AsEnumerable();
-        }
-        [HarmonyPatch(typeof(PlayerControllerB), "SendNewPlayerValuesServerRpc")]
-        [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> SendNewPlayerValuesServerRpc(IEnumerable<CodeInstruction> instructions)
-        {
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 0; i < codes.Count; i++)
-            {
-                if (codes[i].opcode == OpCodes.Blt_S)
-                {
-                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
-                    {
-                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
-                        codes[i - 1].operand = Plugin.MaxPlayers;
-                        break;
-                    }
-                }
+                //}/shrug
             }
             return codes.AsEnumerable();
         }
@@ -120,10 +139,10 @@ namespace BigLobby.Patches
                 {
                     codes[i].opcode = OpCodes.Ldc_I4_S;
                         codes[i].operand = Plugin.MaxPlayers;
-                        break;
                 }
             }
             return codes.AsEnumerable();
         }
+
     }
 }
