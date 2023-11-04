@@ -1,3 +1,5 @@
+//TODO: to get shit to work make sure that  isPlayerControlled  is properly set before ConnectToClient is called. that should be it.
+
 using GameNetcodeStuff;
 using HarmonyLib;
 using Unity.Netcode;
@@ -77,7 +79,7 @@ namespace BigLobby.Patches
                 new Type[] { typeof(NetworkObject), typeof(ulong), typeof(bool), typeof(bool), typeof(ulong), typeof(bool) },
                 null
             );
-                Plugin.instantiating = true;
+                instantiating = true;
             for (int i = 4; i < Plugin.MaxPlayers; i++)
             {
                 nextClientId = i;
@@ -89,7 +91,6 @@ namespace BigLobby.Patches
                 __instance.allPlayerObjects[i] = newPlayer;
                 __instance.allPlayerScripts[i] = newScript;
                 (typeof(NetworkObject)).GetProperty("NetworkObjectId", BindingFlags.Instance | BindingFlags.Public).SetValue(netObject, (uint)1234567890ul + (ulong)i);
-                //Plugin.dothethe(newPlayer);
                 spawnMethod.Invoke(NetworkManager.Singleton.SpawnManager, new object[]{
                         netObject,
                         1234567890ul + (ulong)i,
@@ -99,7 +100,7 @@ namespace BigLobby.Patches
                         false
                     });
             }
-            Plugin.instantiating = false;
+            instantiating = false;
         }
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPrefix]
@@ -123,7 +124,7 @@ namespace BigLobby.Patches
 
         public static bool FixPlayerObject(ref PlayerControllerB __instance)
         {
-            if (!Plugin.instantiating) return(true);
+            if (!instantiating) return(true);
             __instance.gameObject.name = $"ExtraPlayer{nextClientId}";
             __instance.playerClientId = (ulong)nextClientId;
             __instance.actualClientId = (ulong)nextClientId;
