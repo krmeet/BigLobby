@@ -112,8 +112,15 @@ namespace BigLobby.Patches
             return (true);
         }//Bizzlemip rolls worlds shittiest PATCH. Asked to leave MODDING COMMUNITY
 
+        /*[HarmonyPatch(typeof(HUDManager), "FillEndGameStats")]
+        [HarmonyPrefix]
+        public static bool ShitAssFix2ElecticBoogaloo(ref HUDManager __instance, EndOfGameStats stats)
+        {
+            return (false);
+        }//Bizzlemip rolls worlds shittiest PATCH. Asked to leave MODDING COMMUNITY*/
         [HarmonyPatch(typeof(PlayerControllerB), "Awake")]
         [HarmonyPrefix]
+
         public static bool FixPlayerObject(ref PlayerControllerB __instance)
         {
             if (!Plugin.instantiating) return(true);
