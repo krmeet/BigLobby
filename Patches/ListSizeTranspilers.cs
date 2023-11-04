@@ -160,6 +160,7 @@ namespace BigLobby.Patches
             Debug.Log("Okaty cool!!! this should only run once");
             for (int i = 0; i < codes.Count; i++)
             {
+                Debug.Log(codes[i]);
                 if (codes[i].opcode == OpCodes.Blt)
                 {
                     Debug.Log(i);
