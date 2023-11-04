@@ -97,19 +97,58 @@ namespace BigLobby.Patches
         }*/
         [HarmonyPatch(typeof(PlayerControllerB), "SendNewPlayerValuesServerRpc")]
         [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> SendPlayerValuesRpc(IEnumerable<CodeInstruction> instructions) {
+        public static IEnumerable<CodeInstruction> SendNewPlayerValuesServerRpc(IEnumerable<CodeInstruction> instructions) {
             var codes = new List<CodeInstruction>(instructions);
             for (int i = 0; i < codes.Count; i++)
             {
-                //if (codes[i].opcode == OpCodes.Blt_S)
+                if (codes[i].opcode == OpCodes.Blt)
+                {
+                    if (codes[i-1].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                        break;
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
+        [HarmonyPatch(typeof(StartOfRound), "SyncShipUnlockablesClientRpc")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> SyncShipUnlockablesClientRpc(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Blt)
+                {
+                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                        break;
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
+        [HarmonyPatch(typeof(StartOfRound), "SyncShipUnlockablesServerRpc")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> SyncShipUnlockablesServerRpc(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            Debug.Log("okay cool");
+            for (int i = 0; i < codes.Count; i++)
+            {
+                //if (codes[i].opcode == OpCodes.Blt)
                 //{
                     if (codes[i].opcode == OpCodes.Ldc_I4_4)
                     {
+                        Debug.Log("BALLT.S");
                         codes[i].opcode = OpCodes.Ldc_I4_S;
-                        codes[i].operand = Plugin.MaxPlayers;
-                        break;
+                        codes[i ].operand = Plugin.MaxPlayers;
                     }
-                //}/shrug
+                //}
             }
             return codes.AsEnumerable();
         }
@@ -118,12 +157,15 @@ namespace BigLobby.Patches
         public static IEnumerable<CodeInstruction> FillEndGameStats(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
+            Debug.Log("Okaty cool!!! this should only run once");
             for (int i = 0; i < codes.Count; i++)
             {
                 if (codes[i].opcode == OpCodes.Blt)
                 {
+                    Debug.Log(i);
+                    Debug.Log("deez!!! yeah you did it. good job");
                     codes[i].opcode = OpCodes.Bgt;
-                    break;
+                    //break;see if i care bozo ! ratio ecksdee blehj.
                 }
             }
             return codes.AsEnumerable();
