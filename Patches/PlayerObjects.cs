@@ -1,5 +1,3 @@
-//TODO: to get shit to work make sure that  isPlayerControlled  is properly set before ConnectToClient is called. that should be it.
-
 using GameNetcodeStuff;
 using HarmonyLib;
 using Unity.Netcode;
@@ -103,29 +101,28 @@ namespace BigLobby.Patches
             }
             Plugin.instantiating = false;
         }
-        [HarmonyPatch(typeof(PlayerControllerB), "ConnectClientToPlayerObject")]
+        [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPrefix]
 
-        public static void ShitAssFix(ref PlayerControllerB __instance)
+        public static bool ShitAssFix(ref PlayerControllerB __instance)
         {
-            Debug.Log(__instance.transform.parent.gameObject.name);
-        }
+            if (__instance.transform.parent.gameObject.name == "HangarShip") {
+                __instance.isPlayerControlled = true;
+            }
+            return (true);
+        }//Bizzlemip rolls worlds shittiest PATCH. Asked to leave MODDING COMMUNITY
+
         [HarmonyPatch(typeof(PlayerControllerB), "Awake")]
         [HarmonyPrefix]
-        public static void FixPlayerObject(ref PlayerControllerB __instance)
+        public static bool FixPlayerObject(ref PlayerControllerB __instance)
         {
-            Debug.Log(__instance.transform.parent.gameObject.name);
-            if (!Plugin.instantiating) return;
-            int shittycount;
-            shittycount = nextClientId;
-            __instance.gameObject.name = $"ExtraPlayer{shittycount}";
-            __instance.playerClientId = (ulong)shittycount + 1;
-            __instance.actualClientId = (ulong)shittycount;
-            Debug.Log("ASDFAS");
-            Debug.Log(shittycount);
-            Debug.Log(StartOfRound.Instance.allPlayerObjects.Length);
-            StartOfRound.Instance.allPlayerObjects[shittycount] = __instance.transform.parent.gameObject;
-            StartOfRound.Instance.allPlayerScripts[shittycount] = __instance;
+            if (!Plugin.instantiating) return(true);
+            __instance.gameObject.name = $"ExtraPlayer{nextClientId}";
+            __instance.playerClientId = (ulong)nextClientId;
+            __instance.actualClientId = (ulong)nextClientId;
+
+            StartOfRound.Instance.allPlayerObjects[nextClientId] = __instance.transform.parent.gameObject;
+            StartOfRound.Instance.allPlayerScripts[nextClientId] = __instance;
             var fields = typeof(PlayerControllerB).GetFields();
             foreach (FieldInfo field in fields) 
             {
@@ -135,6 +132,7 @@ namespace BigLobby.Patches
                     field.SetValue(__instance, referenceValue);
             }
             __instance.enabled = true;
+            return (true);
         }
 
         [HarmonyPatch(typeof(StartOfRound), "GetPlayerSpawnPosition")]
