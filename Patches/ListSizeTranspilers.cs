@@ -65,36 +65,6 @@ namespace BigLobby.Patches
             }
             return codes.AsEnumerable();
         }
-        /*[HarmonyPatch(typeof(StartOfRound), "SyncShipUnlockablesServerRpc")]
-        [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> SyncUnlockablesRpc(IEnumerable<CodeInstruction> instructions) {
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 0; i < codes.Count; i++)
-            {
-                if (codes[i].opcode == OpCodes.Newarr)
-                {
-                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
-                    {
-                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
-                        codes[i - 1].operand = Plugin.MaxPlayers;
-                        break;
-                    }
-                }
-            }
-            for (int i = 0; i < codes.Count; i++)
-            {
-                if (codes[i].opcode == OpCodes.Blt_S)
-                {
-                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
-                    {
-                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
-                        codes[i - 1].operand = Plugin.MaxPlayers;
-                        break;
-                    }
-                }
-            }
-            return codes.AsEnumerable();
-        }*/
         [HarmonyPatch(typeof(PlayerControllerB), "SendNewPlayerValuesServerRpc")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> SendNewPlayerValuesServerRpc(IEnumerable<CodeInstruction> instructions) {
@@ -132,19 +102,96 @@ namespace BigLobby.Patches
             }
             return codes.AsEnumerable();
         }
+        [HarmonyPatch(typeof(DressGirlAI), "ChoosePlayerToHaunt")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> ChoosePlayerToHaunt(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Blt)
+                {
+                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                        Debug.Log("Dress AI Fix Applied");
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
+        [HarmonyPatch(typeof(EnemyAI), "GetClosestPlayer")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> GetClosestPlayer(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Blt)
+                {
+                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                        Debug.Log("Gen AI Fix Applied");
+                        break;
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
+        [HarmonyPatch(typeof(SpringManAI), "Update")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> SUpdate(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Blt)
+                {
+                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4 && codes[i - 2].opcode == OpCodes.Ldloc_2)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                        Debug.Log("Spring AI Fix 2 Applied");
+                        break;
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
+        [HarmonyPatch(typeof(SpringManAI), "DoAIInterval")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> AIInterval(IEnumerable<CodeInstruction> instructions)
+        {
+            var codes = new List<CodeInstruction>(instructions);
+            for (int i = 0; i < codes.Count; i++)
+            {
+                if (codes[i].opcode == OpCodes.Blt)
+                {
+                    if (codes[i - 1].opcode == OpCodes.Ldc_I4_4)
+                    {
+                        codes[i - 1].opcode = OpCodes.Ldc_I4_S;
+                        codes[i - 1].operand = Plugin.MaxPlayers;
+                        Debug.Log("Spring AI Fix Applied");
+                        break;
+                    }
+                }
+            }
+            return codes.AsEnumerable();
+        }
         [HarmonyPatch(typeof(StartOfRound), "SyncShipUnlockablesServerRpc")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> SyncShipUnlockablesServerRpc(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
-            Debug.Log("okay cool");
             for (int i = 0; i < codes.Count; i++)
             {
                 //if (codes[i].opcode == OpCodes.Blt)
                 //{
                     if (codes[i].opcode == OpCodes.Ldc_I4_4)
                     {
-                        Debug.Log("BALLT.S");
                         codes[i].opcode = OpCodes.Ldc_I4_S;
                         codes[i ].operand = Plugin.MaxPlayers;
                     }
@@ -157,14 +204,10 @@ namespace BigLobby.Patches
         public static IEnumerable<CodeInstruction> FillEndGameStats(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
-            Debug.Log("Okaty cool!!! this should only run once");
             for (int i = 0; i < codes.Count; i++)
             {
-                Debug.Log(codes[i]);
                 if (codes[i].opcode == OpCodes.Blt)
                 {
-                    Debug.Log(i);
-                    Debug.Log("deez!!! yeah you did it. good job");
                     codes[i].opcode = OpCodes.Bgt;
                     //break;see if i care bozo ! ratio ecksdee blehj.
                 }
